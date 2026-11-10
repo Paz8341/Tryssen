@@ -4,6 +4,7 @@ from build import build,ROOT
 class BuildTests(unittest.TestCase):
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name)/'site';shutil.copytree(ROOT,self.root,ignore=shutil.ignore_patterns('dist','__pycache__'))
+  (self.root/'content/site.json').write_text(json.dumps({'hero':'','contact':'','responsible':''}))
  def tearDown(self):self.tmp.cleanup()
  def save(self,name,items): (self.root/f'content/{name}.json').write_text(json.dumps({'items':items}))
  def test_publication_and_drafts(self):
