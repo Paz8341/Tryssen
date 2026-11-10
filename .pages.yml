@@ -1,0 +1,296 @@
+{
+  "media": {
+    "input": "media",
+    "output": "/media",
+    "rename": "random",
+    "extensions": [
+      "jpg",
+      "jpeg",
+      "png",
+      "webp"
+    ]
+  },
+  "content": [
+    {
+      "name": "news",
+      "label": "Nyheter",
+      "type": "file",
+      "path": "content/news.json",
+      "format": "json",
+      "fields": [
+        {
+          "name": "items",
+          "label": "Nyheter",
+          "type": "object",
+          "list": {
+            "collapsible": {
+              "collapsed": true,
+              "summary": "{title}"
+            }
+          },
+          "fields": [
+            {
+              "name": "published",
+              "label": "Publicerad",
+              "type": "boolean"
+            },
+            {
+              "name": "title",
+              "label": "Titel (svenska)",
+              "type": "string",
+              "required": true
+            },
+            {
+              "name": "title_en",
+              "label": "Titel (engelska)",
+              "type": "string"
+            },
+            {
+              "name": "date",
+              "label": "Datum",
+              "type": "date",
+              "required": true,
+              "options": {
+                "format": "yyyy-MM-dd"
+              }
+            },
+            {
+              "name": "body",
+              "label": "Text (svenska)",
+              "type": "text",
+              "required": true
+            },
+            {
+              "name": "body_en",
+              "label": "Text (engelska)",
+              "type": "text"
+            },
+            {
+              "name": "image",
+              "label": "Bild",
+              "type": "image"
+            },
+            {
+              "name": "alt",
+              "label": "Bildbeskrivning (svenska)",
+              "type": "string"
+            },
+            {
+              "name": "alt_en",
+              "label": "Bildbeskrivning (engelska)",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "events",
+      "label": "Aktiviteter",
+      "type": "file",
+      "path": "content/events.json",
+      "format": "json",
+      "fields": [
+        {
+          "name": "items",
+          "label": "Aktiviteter",
+          "type": "object",
+          "list": {
+            "collapsible": {
+              "collapsed": true,
+              "summary": "{title}"
+            }
+          },
+          "fields": [
+            {
+              "name": "published",
+              "label": "Publicerad",
+              "type": "boolean"
+            },
+            {
+              "name": "title",
+              "label": "Titel (svenska)",
+              "type": "string",
+              "required": true
+            },
+            {
+              "name": "title_en",
+              "label": "Titel (engelska)",
+              "type": "string"
+            },
+            {
+              "name": "date",
+              "label": "Datum",
+              "type": "date",
+              "required": true,
+              "options": {
+                "format": "yyyy-MM-dd"
+              }
+            },
+            {
+              "name": "body",
+              "label": "Text (svenska)",
+              "type": "text",
+              "required": true
+            },
+            {
+              "name": "body_en",
+              "label": "Text (engelska)",
+              "type": "text"
+            },
+            {
+              "name": "time",
+              "label": "Tid (HH:MM)",
+              "type": "string"
+            },
+            {
+              "name": "place",
+              "label": "Plats (svenska)",
+              "type": "string"
+            },
+            {
+              "name": "place_en",
+              "label": "Plats (engelska)",
+              "type": "string"
+            },
+            {
+              "name": "cancelled",
+              "label": "Inställd",
+              "type": "boolean"
+            },
+            {
+              "name": "image",
+              "label": "Bild",
+              "type": "image"
+            },
+            {
+              "name": "alt",
+              "label": "Bildbeskrivning (svenska)",
+              "type": "string"
+            },
+            {
+              "name": "alt_en",
+              "label": "Bildbeskrivning (engelska)",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "albums",
+      "label": "Bildgalleri",
+      "type": "file",
+      "path": "content/albums.json",
+      "format": "json",
+      "fields": [
+        {
+          "name": "items",
+          "label": "Bildgalleri",
+          "type": "object",
+          "list": {
+            "collapsible": {
+              "collapsed": true,
+              "summary": "{title}"
+            }
+          },
+          "fields": [
+            {
+              "name": "published",
+              "label": "Publicerad",
+              "type": "boolean"
+            },
+            {
+              "name": "title",
+              "label": "Titel (svenska)",
+              "type": "string",
+              "required": true
+            },
+            {
+              "name": "title_en",
+              "label": "Titel (engelska)",
+              "type": "string"
+            },
+            {
+              "name": "date",
+              "label": "Datum",
+              "type": "date",
+              "required": true,
+              "options": {
+                "format": "yyyy-MM-dd"
+              }
+            },
+            {
+              "name": "body",
+              "label": "Text (svenska)",
+              "type": "text"
+            },
+            {
+              "name": "body_en",
+              "label": "Text (engelska)",
+              "type": "text"
+            },
+            {
+              "name": "cover",
+              "label": "Omslagsbild (välj en bild från albumet)",
+              "type": "image"
+            },
+            {
+              "name": "photos",
+              "label": "Fotografier",
+              "type": "object",
+              "required": true,
+              "list": true,
+              "fields": [
+                {
+                  "name": "image",
+                  "label": "Bild",
+                  "type": "image",
+                  "required": true
+                },
+                {
+                  "name": "alt",
+                  "label": "Bildbeskrivning (svenska)",
+                  "type": "string",
+                  "required": true
+                },
+                {
+                  "name": "alt_en",
+                  "label": "Bildbeskrivning (engelska)",
+                  "type": "string"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "site",
+      "label": "Inställningar",
+      "type": "file",
+      "path": "content/site.json",
+      "format": "json",
+      "fields": [
+        {
+          "name": "hero",
+          "label": "Original panoramabild",
+          "type": "image",
+          "required": true
+        },
+        {
+          "name": "responsible",
+          "label": "Ansvarig för webbplatsen",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "contact",
+          "label": "E-post för bildborttagning",
+          "type": "string",
+          "required": true
+        }
+      ]
+    }
+  ]
+}
