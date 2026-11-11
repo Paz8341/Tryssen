@@ -233,33 +233,48 @@
             {
               "name": "cover",
               "label": "Omslagsbild (välj en bild från albumet)",
-              "type": "image"
+              "type": "image",
+              "description": "Välj en redan uppladdad bild som ingår i albumet. Utan val används den första bilden."
             },
             {
               "name": "photos",
               "label": "Fotografier",
               "type": "object",
               "required": true,
-              "list": true,
+              "list": {
+                "collapsible": {
+                  "collapsed": false,
+                  "summary": "Bildgrupp {index}"
+                }
+              },
               "fields": [
                 {
                   "name": "image",
-                  "label": "Bild",
+                  "label": "Bilder – välj eller ladda upp flera",
                   "type": "image",
-                  "required": true
+                  "required": true,
+                  "options": {
+                    "multiple": {
+                      "max": 100
+                    },
+                    "unique": true
+                  },
+                  "description": "Du kan markera flera filer från datorn eller välja redan uppladdade bilder."
                 },
                 {
                   "name": "alt",
-                  "label": "Bildbeskrivning (svenska)",
+                  "label": "Bildbeskrivning (svenska) (valfri)",
                   "type": "string",
-                  "required": true
+                  "description": "Valfri beskrivning för denna bildgrupp. För en egen beskrivning per bild, lägg bilden i en separat grupp."
                 },
                 {
                   "name": "alt_en",
-                  "label": "Bildbeskrivning (engelska)",
-                  "type": "string"
+                  "label": "Bildbeskrivning (engelska) (valfri)",
+                  "type": "string",
+                  "description": "Valfri beskrivning för denna bildgrupp. För en egen beskrivning per bild, lägg bilden i en separat grupp."
                 }
-              ]
+              ],
+              "description": "Öppna en bildgrupp och välj eller ladda upp flera bilder samtidigt. Lägg till fler bilder här senare."
             }
           ]
         }

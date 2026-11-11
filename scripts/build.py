@@ -1,7 +1,7 @@
 """Build only public, referenced content. No server or runtime dependencies."""
 from pathlib import Path
 from datetime import date, time
-import json, shutil, hashlib, argparse
+import json, shutil, hashlib, argparse, re
 ROOT=Path(__file__).resolve().parents[1]
 def build(root=ROOT, optimize=False, strict=False):
  root=Path(root); out=root/'dist'; shutil.rmtree(out,ignore_errors=True);out.mkdir()
@@ -47,14 +47,45 @@ def build(root=ROOT, optimize=False, strict=False):
     assert item.get('alt'),f'{collection}: falta texto alternativo'
     item['image']=photo(item['image'])
    if collection=='albums':
-    assert item.get('photos'), 'El álbum publicado necesita fotografías'
-    for image in item['photos']:
-     assert image.get('alt'),'Falta texto alternativo de una fotografía'
-     image['image']=photo(image['image'])
-    item['cover']=photo(item.get('cover',''))
+    # Accept the existing single-image groups and the CMS multiple-image picker.
+    # Normalize only deployment data: never rewrite or delete original files.
+    from PIL import Image, ImageOps
+    unique=[]; seen={}
+    def identity(path):
+     relative=path.lstrip('/')
+     source=(root/relative).resolve()
+     assert relative.startswith('media/') and source.is_relative_to((root/'media').resolve()) and source.is_file(),'La imagen debe existir en media/'
+     with Image.open(source) as original:
+      im=ImageOps.exif_transpose(original).convert('RGB')
+      return (im.size,hashlib.sha256(im.tobytes()).hexdigest())
+    for group in item.get('photos') or []:
+     paths=group.get('image') or []
+     if isinstance(paths,str):paths=[paths]
+     assert isinstance(paths,list),'La selección de fotografías no es válida'
+     for path in paths:
+      key=identity(path)
+      if key in seen:continue
+      seen[key]=path
+      entry=dict(group,image=path)
+      if not entry.get('alt'):
+       entry['alt']=f"{item['title']} – foto {len(unique)+1}"
+       entry['alt_en']=entry.get('alt_en') or f"{item.get('title_en') or item['title']} – photo {len(unique)+1}"
+      unique.append(entry)
+    assert unique, 'El álbum publicado necesita fotografías'
+    cover=item.get('cover') or unique[0]['image']
+    cover=seen.get(identity(cover),cover)
+    for entry in unique:entry['image']=photo(entry['image'])
+    item['photos']=unique
+    item['cover']=photo(cover)
     assert not item['cover'] or item['cover'] in [p['image'] for p in item['photos']],'La portada debe pertenecer al álbum'
    payload[collection].append(item)
  (out/'assets/content.js').write_text('window.TRYSSEN='+json.dumps(payload,ensure_ascii=True)+';\n')
+ # Fingerprint generated references so CMS updates are not hidden by browser caches.
+ html=(out/'index.html').read_text()
+ for asset in ['style.css','app.js','content.js']:
+  version=hashlib.sha256((out/'assets'/asset).read_bytes()).hexdigest()[:12]
+  html=re.sub(r'assets/'+re.escape(asset)+r'(?:\?v=[^"\s]+)?','assets/'+asset+'?v='+version,html)
+ (out/'index.html').write_text(html)
  (out/'.nojekyll').touch()
  return payload
 if __name__=='__main__':

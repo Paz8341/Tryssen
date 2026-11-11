@@ -11,9 +11,8 @@ class BuildTests(unittest.TestCase):
   self.save('news',[{'published':False,'title':'DO NOT PUBLISH','body':'SECRET'},{'published':True,'title':'Nyhet','date':'2026-11-10','body':'Hej'}]);build(self.root)
   result=(self.root/'dist/assets/content.js').read_text();self.assertNotIn('SECRET',result);self.assertIn('Nyhet',result);self.assertFalse((self.root/'dist/content').exists())
  def test_subpath_assets_and_multiple_photos(self):
-  # Tiny valid PNG, sufficient for build copy path checks.
-  import base64
-  for name in ['a.png','b.png']:(self.root/'media'/name).write_bytes(base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l1sAAAAASUVORK5CYII='))
+  from PIL import Image
+  for name,color in [('a.png','red'),('b.png','blue')]:Image.new('RGB',(4,6),color).save(self.root/'media'/name)
   self.save('albums',[{'published':True,'title':'Album','date':'2026-11-10','cover':'/media/b.png','photos':[{'image':'/media/a.png','alt':'A'},{'image':'/media/b.png','alt':'B'}]}]);result=build(self.root)
   self.assertEqual(len(result['albums'][0]['photos']),2);self.assertEqual(result['albums'][0]['cover'],'media/b.png')
   for photo in result['albums'][0]['photos']:self.assertTrue((self.root/'dist'/photo['image']).exists());self.assertFalse(photo['image'].startswith('/'))
@@ -27,6 +26,26 @@ class BuildTests(unittest.TestCase):
   with Image.open(self.root/'dist'/thumb) as im:self.assertLessEqual(im.width,640);self.assertLessEqual(im.height,480)
  def test_events_and_cancellation(self):
   self.save('events',[{'published':True,'title':'Träff','date':'2026-11-20','time':'14:30','cancelled':True}]);self.assertTrue(build(self.root)['events'][0]['cancelled'])
+ def test_cms_multiple_upload_optional_captions_and_originals_preserved(self):
+  from PIL import Image
+  for name,color in [('a.png','red'),('b.png','blue')]:Image.new('RGB',(4,6),color).save(self.root/'media'/name)
+  shutil.copy(self.root/'media/a.png',self.root/'media/copy.png')
+  self.save('albums',[{'published':True,'title':'Album','date':'2026-11-10','cover':'/media/copy.png','photos':[{'image':['/media/a.png','/media/b.png','/media/copy.png']}]}])
+  source=(self.root/'content/albums.json').read_bytes()
+  result=build(self.root)['albums'][0]
+  self.assertEqual(len(result['photos']),2)
+  self.assertEqual(result['cover'],'media/a.png')
+  self.assertTrue(all(p['alt'] and p['alt_en'] for p in result['photos']))
+  self.assertEqual((self.root/'content/albums.json').read_bytes(),source)
+  self.assertTrue((self.root/'media/copy.png').is_file())
+ def test_captioned_groups_and_first_image_cover(self):
+  from PIL import Image
+  Image.new('RGB',(4,6),'red').save(self.root/'media/a.png')
+  self.save('albums',[{'published':True,'title':'Album','date':'2026-11-10','photos':[{'image':['/media/a.png'],'alt':'Beskrivning','alt_en':'Description'}]}])
+  result=build(self.root)['albums'][0]
+  self.assertEqual(result['cover'],'media/a.png')
+  self.assertEqual(result['photos'][0]['alt'],'Beskrivning')
+  self.assertEqual(result['photos'][0]['alt_en'],'Description')
  def test_blocks_missing_photo_alt(self):
   self.save('news',[{'published':True,'title':'Hej','date':'2026-11-10','image':'/media/missing.png'}])
   with self.assertRaises(AssertionError):build(self.root)

@@ -4,15 +4,15 @@ Web comunitaria estática en sueco e inglés, preparada para GitHub Pages y Page
 
 ## Estado real de esta entrega
 
-**Todavía no está publicada.** No se encontró un repositorio Tryssen accesible. Las imágenes del mensaje se pueden ver como referencia, pero no llegaron como archivos al entorno: falta incorporar el archivo original de la fotografía. El campo de portada está vacío deliberadamente; no se ha sustituido por otra fotografía. Se ha reproducido la estructura del boceto con CSS y SVG, pero no se ha verificado la fidelidad en un navegador. No hay noticias, eventos o álbumes inventados.
+La web está publicada en https://paz8341.github.io/Tryssen/. El proyecto conserva la fotografía original de portada y los contenidos guardados desde Pages CMS.
 
-El proceso de publicación está configurado para detenerse hasta que se indiquen la fotografía principal, la persona responsable y el correo de contacto. La política de privacidad es un texto inicial que la responsable debe revisar para su caso real.
+Guardar en Pages CMS publica automáticamente los contenidos con **Publicerad** activo. Los datos de responsable y contacto no bloquean técnicamente este flujo. No se han inventado ni rellenado esos datos.
 
 ## Primera publicación: una sola vez
 
-### Publicar el estado actual para revisar el diseño
+### Publicación cotidiana
 
-Si quieres revisar la web antes de completar la portada y los datos de contacto, el workflow admite una ejecución manual: **Actions → Publicar Tryssen → Run workflow → revision: activado**. Esta opción omite únicamente los requisitos de portada, responsable y correo; mantiene las pruebas, la validación de contenidos y la optimización de imágenes. La web resultante será pública en GitHub Pages. Requiere autorización de la propietaria antes de publicar. Los commits automáticos y las ejecuciones manuales sin esta opción mantienen la comprobación estricta de la versión completa. No modifica el diseño ni añade contenido.
+Después de la configuración inicial, guarda en Pages CMS con **Publicerad** activo. GitHub Actions comprueba, optimiza y publica automáticamente; no hay que ejecutar un modo de revisión ni abrir Codex.
 
 ### Configuración del repositorio
 
@@ -40,9 +40,15 @@ Abre **Aktiviteter**, añade un elemento e indica título, fecha y descripción 
 
 ### Crear un álbum y subir varias fotos
 
-En **Bildgalleri**, añade un elemento con título, descripción y fecha. En **Fotografier**, añade un elemento por imagen, sube el archivo y describe su contenido en sueco. Puedes cargar archivos previamente en **Media**, incluidos varios si el selector de tu navegador lo permite, y luego seleccionarlos desde cada elemento del álbum. El álbum admite tantas entradas como resulte razonable para los límites del alojamiento. En **Omslagsbild**, selecciona una de las imágenes incluidas en el álbum. Esa imagen aparece primero. Activa **Publicerad** y guarda.
+En **Bildgalleri**, crea un álbum con título, fecha y descripción. El texto inglés es opcional. Dentro de **Fotografier**, abre una **Bildgrupp** y pulsa el selector **Bilder – välj eller ladda upp flera**. Selecciona varios archivos del ordenador al mismo tiempo (Ctrl/Cmd o Mayús); el campo admite hasta 100 imágenes por grupo. También puedes elegir fotos ya subidas. Para añadir más posteriormente, vuelve al mismo selector o añade otra Bildgrupp dentro del álbum.
 
-Para añadir fotos después, abre el álbum y añade más elementos. Para quitar una foto, elimina su elemento y, si era la portada, elige otra. Guarda. Para borrar un álbum, elimina su elemento completo. Quitar una imagen del álbum no elimina el archivo del repositorio; borra también el archivo desde **Media** si ninguna publicación lo utiliza. Las imágenes se amplían mediante un botón: el visor admite Escape, flechas y navegación por teclado.
+Las descripciones de imagen son opcionales. La descripción de una Bildgrupp se aplica a sus imágenes. Si quieres una descripción específica para una foto, puedes ponerla en su propia Bildgrupp. Si la dejas vacía, la web genera una etiqueta con el título del álbum y el número de foto; esa etiqueta no describe el contenido visual.
+
+En **Omslagsbild**, selecciona una de las fotos del álbum desde los archivos ya subidos. Si no eliges ninguna, se usa la primera. Activa **Publicerad** y guarda. La cuadrícula muestra tres columnas en ordenador, dos en tablet y una en móvil estrecho. Pulsa una miniatura para ver la fotografía completa; las flechas permiten avanzar y retroceder, y Escape cierra el visor.
+
+Para quitar una foto del álbum, quítala de la selección correspondiente y revisa la portada. El archivo original se conserva en Media. Las imágenes idénticas se muestran una sola vez durante la generación, sin borrar ni reorganizar los archivos originales ni las noticias.
+
+El selector múltiple usa la función documentada `options.multiple` de Pages CMS: https://pagescms.org/docs/configuration/fields/image/. Se ha comprobado la compatibilidad del formato guardado con el generador; la carga y el guardado en la cuenta personal de Pages CMS requieren la sesión de la propietaria.
 
 ### Editar y borrar
 
@@ -113,4 +119,4 @@ node --check assets/app.js
 python scripts/build.py
 ```
 
-El build básico copia fotos sin optimizar. El workflow instala Pillow 12.0.0 y usa `python scripts/build.py --optimize --strict`. Solo `dist/` es publicable. No hay servidor de aplicación. Mantén actualizados los Actions y Pillow mediante revisiones periódicas; conserva copias antes de actualizar.
+El build básico copia fotos sin optimizar. El workflow instala Pillow 12.0.0 y usa `python scripts/build.py --optimize`. Solo `dist/` es publicable. No hay servidor de aplicación. Mantén actualizados los Actions y Pillow mediante revisiones periódicas; conserva copias antes de actualizar.
