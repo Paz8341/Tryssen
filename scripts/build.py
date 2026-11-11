@@ -2,11 +2,26 @@
 from pathlib import Path
 from datetime import date, time
 import json, shutil, hashlib, argparse, re
+from richtext import render_news
 ROOT=Path(__file__).resolve().parents[1]
+
+TEXT_KEYS={'title','title_en','body','body_en','place','place_en','alt','alt_en','responsible'}
+def community_name(text):
+ # Keep existing URLs and addresses intact while correcting the displayed name.
+ return re.sub(r'https?://[^\s<>()]+|mailto:[^\s<>()]+|[\w.+-]+@[\w.-]+\.\w+|\btryssen\b',
+               lambda match:'Trissen' if match[0].lower()=='tryssen' else match[0],text,flags=re.I)
+
+def display_names(value):
+ if isinstance(value,dict):
+  return {key:(community_name(item) if key in TEXT_KEYS and isinstance(item,str) else display_names(item)) for key,item in value.items()}
+ if isinstance(value,list):return [display_names(item) for item in value]
+ return value
 def build(root=ROOT, optimize=False, strict=False):
  root=Path(root); out=root/'dist'; shutil.rmtree(out,ignore_errors=True);out.mkdir()
  shutil.copy(root/'index.html',out/'index.html');shutil.copytree(root/'assets',out/'assets',ignore=shutil.ignore_patterns('content.js'))
- payload={'site':json.loads((root/'content/site.json').read_text()),'thumbnails':{}}
+ payload={'site':display_names(json.loads((root/'content/site.json').read_text())),'thumbnails':{}}
+ descriptions_path=root/'scripts/image-descriptions.json'
+ image_descriptions=json.loads(descriptions_path.read_text()) if descriptions_path.is_file() else {}
  if strict:
   assert payload['site'].get('hero'),'Falta la fotografía panorámica original en Inställningar.'
   assert payload['site'].get('responsible'),'Falta la persona responsable en Inställningar.'
@@ -39,12 +54,21 @@ def build(root=ROOT, optimize=False, strict=False):
   items=json.loads((root/f'content/{collection}.json').read_text())['items'];payload[collection]=[]
   for item in items:
    if not item.get('published',False):continue
+   item=display_names(item)
    for key in ['title','date']:
     assert isinstance(item.get(key),str) and item[key].strip(),f'{collection}: falta {key}'
    date.fromisoformat(item['date'])
    if item.get('time'):time.fromisoformat(item['time'])
    if item.get('image'):
-    assert item.get('alt'),f'{collection}: falta texto alternativo'
+    if collection=='news':
+     if item.get('image_decorative') is True:
+      item['alt']='';item['alt_en']=''
+     else:
+      known=image_descriptions.get(item['image'],{})
+      item['alt']=item.get('alt') or known.get('sv','')
+      if not item.get('alt_en') and known.get('en'):item['alt_en']=known['en']
+      assert isinstance(item['alt'],str) and item['alt'].strip(),'news: falta texto alternativo para una imagen informativa'
+    else:assert item.get('alt'),f'{collection}: falta texto alternativo'
     item['image']=photo(item['image'])
    if collection=='albums':
     # Accept the existing single-image groups and the CMS multiple-image picker.
@@ -78,6 +102,9 @@ def build(root=ROOT, optimize=False, strict=False):
     item['photos']=unique
     item['cover']=photo(cover)
     assert not item['cover'] or item['cover'] in [p['image'] for p in item['photos']],'La portada debe pertenecer al álbum'
+   if collection=='news':
+    item['body_html']=render_news(item.get('body',''))
+    if item.get('body_en'):item['body_html_en']=render_news(item['body_en'])
    payload[collection].append(item)
  (out/'assets/content.js').write_text('window.TRYSSEN='+json.dumps(payload,ensure_ascii=True)+';\n')
  # Fingerprint generated references so CMS updates are not hidden by browser caches.

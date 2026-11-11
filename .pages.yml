@@ -57,13 +57,25 @@
             {
               "name": "body",
               "label": "Text (svenska)",
-              "type": "text",
-              "required": true
+              "type": "rich-text",
+              "required": true,
+              "options": {
+                "format": "markdown",
+                "switcher": false,
+                "media": false
+              },
+              "description": "Använd verktygsfältet för fetstil, rubriker och länkar. E-postadresser blir klickbara på webbplatsen."
             },
             {
               "name": "body_en",
               "label": "Text (engelska)",
-              "type": "text"
+              "type": "rich-text",
+              "options": {
+                "format": "markdown",
+                "switcher": false,
+                "media": false
+              },
+              "description": "Använd verktygsfältet för fetstil, rubriker och länkar. E-postadresser blir klickbara på webbplatsen."
             },
             {
               "name": "image",
@@ -71,9 +83,16 @@
               "type": "image"
             },
             {
+              "name": "image_decorative",
+              "label": "Bilden är enbart dekorativ",
+              "type": "boolean",
+              "description": "Markera bara om bilden inte tillför information. Informativa bilder behöver en bildbeskrivning."
+            },
+            {
               "name": "alt",
               "label": "Bildbeskrivning (svenska)",
-              "type": "string"
+              "type": "string",
+              "description": "Beskriv informativa bilder kort. Behövs inte utan bild eller när bilden uttryckligen är dekorativ."
             },
             {
               "name": "alt_en",

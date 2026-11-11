@@ -1,4 +1,4 @@
-name: Publicar Tryssen
+name: Publicar Trissen
 on:
   push:
     branches: [main]
@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python -m pip install Pillow==12.0.0
+      - run: python -m pip install -r requirements.txt
       - run: python -m unittest discover -s scripts -p 'test_*.py'
       - name: Preparar la web
         run: python scripts/build.py --optimize

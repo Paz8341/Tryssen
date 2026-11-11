@@ -5,6 +5,7 @@ class BuildTests(unittest.TestCase):
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name)/'site';shutil.copytree(ROOT,self.root,ignore=shutil.ignore_patterns('dist','__pycache__'))
   (self.root/'content/site.json').write_text(json.dumps({'hero':'','contact':'','responsible':''}))
+  for name in ['news','events','albums']:self.save(name,[])
  def tearDown(self):self.tmp.cleanup()
  def save(self,name,items): (self.root/f'content/{name}.json').write_text(json.dumps({'items':items}))
  def test_publication_and_drafts(self):
@@ -59,9 +60,52 @@ class BuildTests(unittest.TestCase):
      self.assertTrue(all(isinstance(image,str) and image for image in value),path)
   for content in config['content']:
    if content['type']=='file':
-    check(json.loads((self.root/content['path']).read_text()),content['fields'],content['path'])
- def test_blocks_missing_photo_alt(self):
-  self.save('news',[{'published':True,'title':'Hej','date':'2026-11-10','image':'/media/missing.png'}])
+    check(json.loads((ROOT/content['path']).read_text()),content['fields'],content['path'])
+ def test_news_rich_text_and_informative_image_description(self):
+  from PIL import Image
+  Image.new('RGB',(4,6),'red').save(self.root/'media/a.png')
+  item={'published':True,'title':'Hej Trissen','title_en':'Hello Trissen','date':'2026-11-11','body':'**Hej!**\n\n## Kontakt\n\nTrissenstyrelsen@proton.me','body_en':'**Hello!**\n\n[Write to us](mailto:Trissenstyrelsen@proton.me)','image':'/media/a.png','alt':'Ett rött färgfält'}
+  self.save('news',[item]);source=(self.root/'content/news.json').read_bytes()
+  result=build(self.root)['news'][0]
+  self.assertIn('<strong>Hej!</strong>',result['body_html'])
+  self.assertIn('<h4>Kontakt</h4>',result['body_html'])
+  self.assertIn('href="mailto:',result['body_html'])
+  self.assertIn('<strong>Hello!</strong>',result['body_html_en'])
+  self.assertEqual(result['alt'],'Ett rött färgfält')
+  self.assertEqual((self.root/'content/news.json').read_bytes(),source)
+ def test_news_without_photograph_needs_no_alt(self):
+  self.save('news',[{'published':True,'title':'Nyhet','date':'2026-11-11','body':'Text utan bild'}])
+  result=build(self.root)['news'][0]
+  self.assertNotIn('image',result)
+  self.assertIn('Text utan bild',result['body_html'])
+ def test_informative_news_image_without_alt_is_rejected(self):
+  from PIL import Image
+  Image.new('RGB',(4,6),'red').save(self.root/'media/a.png')
+  self.save('news',[{'published':True,'title':'Nyhet','date':'2026-11-11','image':'/media/a.png'}])
+  with self.assertRaisesRegex(AssertionError,'informativa'):build(self.root)
+ def test_explicitly_decorative_news_image_has_empty_alt(self):
+  from PIL import Image
+  Image.new('RGB',(4,6),'red').save(self.root/'media/a.png')
+  self.save('news',[{'published':True,'title':'Nyhet','date':'2026-11-11','image':'/media/a.png','image_decorative':True}])
+  self.assertEqual(build(self.root)['news'][0]['alt'],'')
+ def test_lucia_photo_description_does_not_rewrite_cms_data(self):
+  self.save('news',[{'published':True,'title':'Lucia','date':'2026-11-11','image':'/media/mwbpb14x-lpqk98si.jpg'}])
+  original=(self.root/'content/news.json').read_bytes()
+  result=build(self.root)['news'][0]
+  self.assertIn('luciatåg',result['alt'])
+  self.assertIn('Lucia procession',result['alt_en'])
+  self.assertEqual((self.root/'content/news.json').read_bytes(),original)
+ def test_community_name_is_display_only_and_keeps_urls(self):
+  text='Tryssen [Tryssen](https://paz8341.github.io/Tryssen/) tryssen@example.org'
+  self.save('news',[{'published':True,'title':'Tryssen','date':'2026-11-11','body':text}])
+  original=(self.root/'content/news.json').read_bytes()
+  result=build(self.root)['news'][0]
+  self.assertEqual(result['title'],'Trissen')
+  self.assertIn('href="https://paz8341.github.io/Tryssen/"',result['body_html'])
+  self.assertIn('href="mailto:tryssen@example.org"',result['body_html'])
+  self.assertEqual((self.root/'content/news.json').read_bytes(),original)
+ def test_blocks_missing_event_photo_alt(self):
+  self.save('events',[{'published':True,'title':'Hej','date':'2026-11-10','image':'/media/missing.png'}])
   with self.assertRaises(AssertionError):build(self.root)
  def test_blocks_external_and_traversal_images(self):
   for path in ['https://example.com/a.jpg','/media/../../etc/passwd']:

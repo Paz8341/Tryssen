@@ -1,4 +1,4 @@
-# Tryssen
+# Trissen
 
 Web comunitaria estática en sueco e inglés, preparada para GitHub Pages y Pages CMS. Sin servidor propio, base de datos ni dependencias JavaScript. Los archivos de contenido son JSON y se editan con formularios visuales.
 
@@ -30,9 +30,19 @@ Si ya tienes un repositorio anterior, importa estos cambios allí después de gu
 
 Entra en https://app.pagescms.org/ y selecciona `tryssen`, rama `main`.
 
-### Publicar una noticia
+### Publicar una noticia con formato
 
-Abre **Nyheter**, añade un elemento en la lista, rellena **Titel (svenska)**, **Datum** y **Text (svenska)**. Los campos ingleses son opcionales. Puedes subir una imagen; en ese caso escribe **Bildbeskrivning (svenska)** para describirla. Activa **Publicerad** y guarda. Las noticias aparecen de más reciente a más antigua.
+Abre **Nyheter**, añade o edita una noticia e indica título, fecha y texto sueco. El inglés es opcional. Los campos **Text (svenska)** y **Text (engelska)** usan el editor visual de Pages CMS y guardan Markdown como texto, por lo que las noticias existentes siguen siendo compatibles.
+
+- Para negrita, selecciona las palabras y pulsa **B** (también Ctrl/Cmd + B).
+- Para un subtítulo, usa el selector de formato y elige un encabezado.
+- Enter crea un párrafo; deja separación entre los bloques.
+- Para un enlace, selecciona las palabras, pulsa el botón de enlace y escribe `https://...`.
+- Para un correo, usa `mailto:Trissenstyrelsen@proton.me` como destino. Las direcciones de correo escritas como texto también se convierten en enlaces al publicar.
+
+La fotografía principal se añade desde el campo **Bild**. Las imágenes informativas necesitan una descripción breve en **Bildbeskrivning**. Si la imagen es únicamente decorativa, marca **Bilden är enbart dekorativ** y se publicará con alternativa vacía. Una noticia sin imagen no necesita descripción. La foto actual de Lucía tiene una descripción bilingüe en la configuración de publicación, sin alterar el archivo de la noticia. Activa **Publicerad** y guarda. La actualización se publica automáticamente. Los textos de actividad y los álbumes conservan su formato anterior.
+
+La conversión se hace durante el build, sin servicios de pago. El HTML introducido manualmente no se ejecuta, los enlaces peligrosos se filtran y no se permite incrustar imágenes dentro del texto enriquecido. La fotografía de la noticia se gestiona mediante su selector habitual.
 
 ### Crear o cancelar una actividad
 
@@ -114,9 +124,12 @@ Pendiente por falta de archivos, repositorio y sesión de propietaria:
 Python 3.12 y Node sirven para comprobar localmente, sin instalar paquetes JavaScript:
 
 ```sh
+python -m pip install -r requirements.txt
 python -m unittest discover -s scripts -p 'test_*.py'
 node --check assets/app.js
 python scripts/build.py
 ```
 
-El build básico copia fotos sin optimizar. El workflow instala Pillow 12.0.0 y usa `python scripts/build.py --optimize`. Solo `dist/` es publicable. No hay servidor de aplicación. Mantén actualizados los Actions y Pillow mediante revisiones periódicas; conserva copias antes de actualizar.
+El build básico copia fotos sin optimizar. El workflow instala las dependencias fijadas en `requirements.txt` y usa `python scripts/build.py --optimize`. Solo `dist/` es publicable. No hay servidor de aplicación. Mantén actualizados los Actions y Pillow mediante revisiones periódicas; conserva copias antes de actualizar.
+
+El nombre visible de la comunidad es **Trissen**. Las publicaciones del CMS se conservan; el generador corrige el nombre al publicar y mantiene intactos los enlaces, direcciones de correo y rutas del repositorio `Paz8341/Tryssen`.

@@ -25,3 +25,13 @@
 #viewer #large{width:auto;height:auto;max-width:100%;max-height:60dvh;object-fit:contain}
 @media(max-width:850px){.album .gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}}
 @media(max-width:480px){.entry.album{padding:18px}.album .gallery{grid-template-columns:1fr;gap:18px}.album>.album-intro,.album-description p{font-size:15px}.album .photo img{aspect-ratio:4/3}}
+
+/* Formatting stays within news article bodies. */
+.news-body{line-height:1.7;overflow-wrap:anywhere}
+.news-body p{white-space:normal;margin:1em 0}
+.news-body h3,.news-body h4,.news-body h5,.news-body h6{color:var(--ink);line-height:1.35;margin:1.3em 0 .5em;font-size:1.2em}
+.news-body h4,.news-body h5,.news-body h6{font-size:1.1em}
+.news-body strong{font-weight:700}
+.news-body a{color:var(--green);text-decoration:underline;text-underline-offset:3px}
+.news-body ul,.news-body ol{padding-left:1.5em}
+.news-body pre{white-space:pre-wrap;overflow-wrap:anywhere}
