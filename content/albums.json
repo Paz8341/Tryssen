@@ -10,7 +10,7 @@
       "cover": "/media/mwb2mb2w-6ugmicd1.png",
       "photos": [
         {
-          "image": "/media/mwb2mb2w-6ugmicd1.png",
+          "image": ["/media/mwb2mb2w-6ugmicd1.png"],
           "alt": "Halloweenpynt med gravsten, skelett och färgglada ljus."
         }
       ]

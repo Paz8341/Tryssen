@@ -46,6 +46,20 @@ class BuildTests(unittest.TestCase):
   self.assertEqual(result['cover'],'media/a.png')
   self.assertEqual(result['photos'][0]['alt'],'Beskrivning')
   self.assertEqual(result['photos'][0]['alt_en'],'Description')
+ def test_saved_content_matches_cms_multiple_image_fields(self):
+  config=json.loads((self.root/'.pages.yml').read_text())
+  def check(obj,fields,location):
+   for field in fields:
+    value=obj.get(field['name'])
+    path=f"{location}.{field['name']}"
+    if field['type']=='object':
+     for i,item in enumerate(value or []):check(item,field.get('fields',[]),f'{path}.{i}')
+    elif field['type']=='image' and field.get('options',{}).get('multiple'):
+     self.assertIsInstance(value,list,f'{path}: Pages CMS requires an array, not a string')
+     self.assertTrue(all(isinstance(image,str) and image for image in value),path)
+  for content in config['content']:
+   if content['type']=='file':
+    check(json.loads((self.root/content['path']).read_text()),content['fields'],content['path'])
  def test_blocks_missing_photo_alt(self):
   self.save('news',[{'published':True,'title':'Hej','date':'2026-11-10','image':'/media/missing.png'}])
   with self.assertRaises(AssertionError):build(self.root)
